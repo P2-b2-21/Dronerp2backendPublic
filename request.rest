@@ -1,0 +1,22 @@
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+    "username": "malthe",
+    "password": "password"
+}
+
+###
+
+POST http://localhost:3000/createuser
+Content-Type: application/json
+
+{
+    "username": "malthe",
+    "password": "password"
+}
+
+###
+
+GET http://localhost:3000/listuser?user=malthe
+
