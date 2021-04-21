@@ -160,6 +160,8 @@ app.get("/getuserprofile", async (req, res) =>
     });
 });
 
+/* do not use this calcGRC 
+
 app.post("/calcgrc", async (req, res) =>
 {
   //console.log(req.body);
@@ -200,4 +202,22 @@ app.post("/calcgrc", async (req, res) =>
       res.sendStatus(500);
       break;
   }
+});
+ */ 
+
+/* 
+app.get("/SAIL", async (req, res) =>
+{
+  console.log("Sending SAIL");
+
+}); */
+
+var GRCArray = [];
+var ARCArray = [];
+
+app.post('/GRC', function (req, res) {
+  var GRC = req.body;
+  console.log(GRC);
+  GRCArray.push(GRC);
+  res.status(200).send("GRC tilføjet!");
 });
