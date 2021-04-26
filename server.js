@@ -3,6 +3,8 @@ const express = require("express");
 const path = require("path");
 const bcrypt = require("bcrypt");
 const cors = require("cors");
+const mssql = require("mssql");
+
 
 const app = express();
 app.use(express.json());
@@ -10,8 +12,8 @@ app.use(cors());
 
 const port = process.env.PORT || 3000;
 
-const mssql = require("mssql");
 
+//MSMSSQL config
 const dbConfig = {
   server: "server.malthelarsen.dk",
   port: 1433,
@@ -20,6 +22,7 @@ const dbConfig = {
   database: "nodejsdatabasa",
 };
 
+//SQL connection
 mssql
   .connect(dbConfig)
   .then((pool) =>
@@ -55,6 +58,8 @@ mssql
     console.log("Failed to open a connection to the database." + err);
   });
 
+
+//Register route (POST)
 app.post("/register", async (req, res) =>
 {
   try
@@ -93,6 +98,7 @@ app.post("/register", async (req, res) =>
   }
 });
 
+//Login route (POST)
 app.post("/login", async (req, res) =>
 {
   console.log("Login request began");
@@ -138,6 +144,7 @@ app.post("/login", async (req, res) =>
     .catch((e) => console.log(e));
 });
 
+//Getuserprofile route (GET)
 app.get("/getuserprofile", async (req, res) =>
 {
   let user = req.query.user;
@@ -160,61 +167,10 @@ app.get("/getuserprofile", async (req, res) =>
     });
 });
 
-/* do not use this calcGRC 
 
-app.post("/calcgrc", async (req, res) =>
-{
-  //console.log(req.body);
-
-  let dronelength = req.body.question1.userInput;
-  let lostype = req.body.question2.userInput;
-  let flyingarea = req.body.question3.userInput;
-  let droneanchor = req.body.question4.userInput;
-  let robustness = req.body.question5.userInput;
-  let parachute = req.body.question6.userInput;
-
-  let erp = req.body.question7.userInput;
-
-
-  let intrinsicGRC = 0;
-
-  switch (dronelength)
-  {
-    case A1:
-      switch (lostype)
-      {
-        case A2: //VLOS
-          break;
-        case B2: //EVLOS
-          break;
-        case C2: //BVLOS
-          break;
-      }
-
-      break;
-    case B1:
-      break;
-    case C1:
-      break;
-    case D1:
-      break;
-    default:
-      res.sendStatus(500);
-      break;
-  }
-});
- */ 
-
-/* 
-app.get("/SAIL", async (req, res) =>
-{
-  console.log("Sending SAIL");
-
-}); */
-
+//GRC Route (POST)
 var GRCArray = [];
 var ARCArray = [];
-
 app.post('/GRC', function (req, res) {
   var GRC = req.body;
   console.log(GRC);
