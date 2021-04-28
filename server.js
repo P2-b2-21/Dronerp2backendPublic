@@ -145,10 +145,19 @@ app.get("/getuserprofile", async (req, res) => {
 //GRC Route (POST)
 let GRCArray = [];
 let ARCArray = [];
-app.post("/GRC", function (req, res) {
-  let GRC = req.body;
-  console.log(GRC);
-  GRCArray.push(GRC);
+app.post("/ARCGRC", function (req, res) {
+  console.log(req.body);
+
+  switch (req.body.arc) {
+    case value:
+      
+      break;
+  
+    default:
+      break;
+  }
+
+  GRCArray.push(req.body);
   res.status(200).send("GRC tilføjet!");
 });
 
