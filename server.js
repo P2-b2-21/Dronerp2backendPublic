@@ -5,13 +5,11 @@ const bcrypt = require("bcrypt");
 const cors = require("cors");
 const mssql = require("mssql");
 
-
 const app = express();
 app.use(express.json());
 app.use(cors());
 
 const port = process.env.PORT || 3000;
-
 
 //MSMSSQL config
 const dbConfig = {
@@ -25,26 +23,19 @@ const dbConfig = {
 //SQL connection
 mssql
   .connect(dbConfig)
-  .then((pool) =>
-  {
-    if (pool.connecting)
-    {
+  .then((pool) => {
+    if (pool.connecting) {
       console.log("Connecting to the database.");
     }
-    if (pool.connected)
-    {
-      app.listen(port, () =>
-      {
+    if (pool.connected) {
+      app.listen(port, () => {
         console.log("Server listening at port %d", port);
         var mssql_request = new mssql.Request();
         mssql_request
           .query("select * from dbo.usertable")
-          .then(function (dataset)
-          {
-            if (dataset && dataset.recordset && dataset.recordset.length > 0)
-            {
-              dataset.recordset.forEach((element) =>
-              {
+          .then(function (dataset) {
+            if (dataset && dataset.recordset && dataset.recordset.length > 0) {
+              dataset.recordset.forEach((element) => {
                 console.log(element);
               });
             }
@@ -53,17 +44,13 @@ mssql
     }
     return pool;
   })
-  .catch(function (err)
-  {
+  .catch(function (err) {
     console.log("Failed to open a connection to the database." + err);
   });
 
-
 //Register route (POST)
-app.post("/register", async (req, res) =>
-{
-  try
-  {
+app.post("/register", async (req, res) => {
+  try {
     const salt = await bcrypt.genSalt();
     var newUser = {
       username: req.body.username,
@@ -74,20 +61,18 @@ app.post("/register", async (req, res) =>
     mssql_req
       .query(
         "INSERT INTO dbo.usertable(username, password) VALUES('" +
-        newUser.username +
-        "','" +
-        newUser.password +
-        "')"
+          newUser.username +
+          "','" +
+          newUser.password +
+          "')"
       )
-      .then(function (dataset)
-      {
-        if (dataset.rowsAffected > 0)
-        {
+      .then(function (dataset) {
+        if (dataset.rowsAffected > 0) {
           console.log(
             "Successfully created new user: " +
-            newUser.username +
-            " with password " +
-            req.body.password
+              newUser.username +
+              " with password " +
+              req.body.password
           );
           res.status(201).send();
         }
@@ -99,8 +84,7 @@ app.post("/register", async (req, res) =>
 });
 
 //Login route (POST)
-app.post("/login", async (req, res) =>
-{
+app.post("/login", async (req, res) => {
   console.log("Login request began");
 
   req.accepts("application/json");
@@ -113,28 +97,23 @@ app.post("/login", async (req, res) =>
   mssql
     .query(
       "SELECT password from dbo.usertable where username='" +
-      user.username +
-      "'"
+        user.username +
+        "'"
     )
-    .then(function (dataset)
-    {
-      if (dataset && dataset.recordset)
-      {
+    .then(function (dataset) {
+      if (dataset && dataset.recordset) {
         const tablePass = dataset.recordset[0].password;
 
         console.log("TablePass: " + tablePass);
         console.log("User password: " + user.password);
 
-        bcrypt.compare(user.password, tablePass, (e, s) =>
-        {
+        bcrypt.compare(user.password, tablePass, (e, s) => {
           console.log("Error: " + e);
           console.log("Compare bool: " + s);
-          if (s)
-          {
+          if (s) {
             console.log("Login ok");
             res.status(201).send();
-          } else
-          {
+          } else {
             console.log("Login denied");
             res.status(500).send();
           }
@@ -145,35 +124,42 @@ app.post("/login", async (req, res) =>
 });
 
 //Getuserprofile route (GET)
-app.get("/getuserprofile", async (req, res) =>
-{
+app.get("/getuserprofile", async (req, res) => {
   let user = req.query.user;
   console.log("Get user profile requested for user: " + user);
 
   mssql
     .query("SELECT * from dbo.usertable where username='" + user + "'")
-    .then(function (dataset)
-    {
-      if (dataset.recordset)
-      {
+    .then(function (dataset) {
+      if (dataset.recordset) {
         let responseJson = JSON.stringify(dataset.recordset[0]);
         console.log(responseJson);
         res.status(200).send(responseJson);
       }
     })
-    .catch((e) =>
-    {
+    .catch((e) => {
       console.log("Error: " + e);
     });
 });
 
-
 //GRC Route (POST)
-var GRCArray = [];
-var ARCArray = [];
-app.post('/GRC', function (req, res) {
-  var GRC = req.body;
+let GRCArray = [];
+let ARCArray = [];
+app.post("/GRC", function (req, res) {
+  let GRC = req.body;
   console.log(GRC);
   GRCArray.push(GRC);
   res.status(200).send("GRC tilføjet!");
 });
+
+function calculateSail(ARC, GRC) {
+  let SAILMatrix = [
+    [6, 6, 6, 6, 6, 6],
+    [4, 4, 4, 4, 5, 6],
+    [2, 2, 3, 4, 5, 6],
+    [1, 2, 3, 4, 5, 6],
+  ];
+  return SAILMatrix[ARC][GRC];
+}
+let SAIL = calculateSail(1, GRCArray[0]);
+console.log(SAIL);
