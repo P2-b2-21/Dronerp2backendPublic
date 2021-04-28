@@ -148,16 +148,25 @@ let ARCArray = [];
 app.post("/ARCGRC", function (req, res) {
   console.log(req.body);
 
+  let SAILRes = 0;
   switch (req.body.arc) {
-    case value:
-      
+    case 'ARC-a':
+      SAILRes = calculateSail(0, req.body.grc);
       break;
-  
+    case 'ARC-b':
+      SAILRes = calculateSail(1, req.body.grc);
+      break;
+    case 'ARC-c':
+      SAILRes = calculateSail(2, req.body.grc);
+      break;
+    case 'ARC-d':
+      SAILRes = calculateSail(3, req.body.grc);
+      break;
     default:
       break;
   }
-
   GRCArray.push(req.body);
+  console.log(SAILRes);
   res.status(200).send("GRC tilføjet!");
 });
 
@@ -170,5 +179,3 @@ function calculateSail(ARC, GRC) {
   ];
   return SAILMatrix[ARC][GRC];
 }
-let SAIL = calculateSail(1, GRCArray[0]);
-console.log(SAIL);
