@@ -1,7 +1,7 @@
 const http = require("http");
 const express = require("express");
 const path = require("path");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const cors = require("cors");
 const mssql = require("mssql");
 
