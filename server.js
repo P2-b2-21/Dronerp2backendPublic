@@ -4,12 +4,33 @@ const path = require("path");
 const bcrypt = require("bcryptjs");
 const cors = require("cors");
 const mssql = require("mssql");
+//const cookieParser = require('cookie-parser'); /*     Til cookies */
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+//app.use(cookieParser()); // Til cookies
 
 const port = process.env.PORT || 3000;
+
+/* TEST OM DET VIRKER - COOKIES 
+// Cookie middleware, assigner cookie ID så snart du besøger siden 
+app.use(function (req, res, next) {
+  // checker om klienten har sendt en cookie
+  var cookie = req.cookies.cookieName;
+  if (cookie === undefined) {
+    // hvis ikke, laver ny cookie her 
+    var randomNumber=Math.random().toString();
+    randomNumber=randomNumber.substring(2,randomNumber.length);
+    res.cookie('cookieName',randomNumber, { maxAge: 3360 * 60 * 60 * 1000, httpOnly: true }); // Cookies udløber om 20 uger, d. 16 September
+    console.log('cookie created successfully');
+  } else {
+    // hvis cookie er oprettet hos klient, gør intet  
+    console.log('cookie exists', cookie);
+  } 
+  next(); 
+});
+*/ 
 
 //MSMSSQL config
 const dbConfig = {
