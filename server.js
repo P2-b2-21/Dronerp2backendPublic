@@ -151,31 +151,48 @@ app.post("/ARCGRC", function (req, res) {
   let SAILRes = 0;
   switch (req.body.arc) {
     case 'ARC-a':
-      SAILRes = calculateSail(0, req.body.grc);
+      SAILRes = calculateSail(0, req.body.grc <= 2 ? 0 : req.body.grc);
       break;
     case 'ARC-b':
-      SAILRes = calculateSail(1, req.body.grc);
+      SAILRes = calculateSail(1, req.body.grc <= 2 ? 0 : req.body.grc);
       break;
     case 'ARC-c':
-      SAILRes = calculateSail(2, req.body.grc);
+      SAILRes = calculateSail(2, req.body.grc <= 2 ? 0 : req.body.grc);
       break;
     case 'ARC-d':
-      SAILRes = calculateSail(3, req.body.grc);
+      SAILRes = calculateSail(3, req.body.grc <= 2 ? 0 : req.body.grc);
       break;
     default:
       break;
   }
-  GRCArray.push(req.body);
+
+  let newObj =
+  {
+    SAIL: SAILRes,
+    ARC: req.body.arc,
+    GRC: req.body.grc,
+    user: req.body.user
+  }
+
+  GRCArray.push();
   console.log(SAILRes);
+
+  mssql_req = new mssql.Request();
+  mssql_req.query(`INSERT INTO dbo.ansoegninger (SAIL, ARC, GRC, username) OUTPUT Inserted.UID VALUES(${newObj.SAIL}, '${newObj.ARC}', ${newObj.GRC}, '${newObj.user}')`)
+  .then(recordset => {
+    console.log(recordset);
+  }).catch(err => console.log(err));
+
   res.status(200).send("GRC tilføjet!");
 });
 
 function calculateSail(ARC, GRC) {
-  let SAILMatrix = [
+  let SAILMatrix =
+  [
     [6, 6, 6, 6, 6, 6],
     [4, 4, 4, 4, 5, 6],
     [2, 2, 3, 4, 5, 6],
     [1, 2, 3, 4, 5, 6],
   ];
-  return SAILMatrix[ARC][GRC];
+  return SAILMatrix[ARC][GRC-1];
 }
