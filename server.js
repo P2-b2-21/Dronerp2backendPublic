@@ -172,16 +172,16 @@ app.post("/ARCGRC", function (req, res) {
   let SAILRes = 0;
   switch (req.body.arc) {
     case 'ARC-a':
-      SAILRes = calculateSail(0, req.body.grc <= 2 ? 0 : req.body.grc);
+      SAILRes = calculateSail(0, req.body.grc <= 2 ? 1 : req.body.grc);
       break;
     case 'ARC-b':
-      SAILRes = calculateSail(1, req.body.grc <= 2 ? 0 : req.body.grc);
+      SAILRes = calculateSail(1, req.body.grc <= 2 ? 1 : req.body.grc);
       break;
     case 'ARC-c':
-      SAILRes = calculateSail(2, req.body.grc <= 2 ? 0 : req.body.grc);
+      SAILRes = calculateSail(2, req.body.grc <= 2 ? 1 : req.body.grc);
       break;
     case 'ARC-d':
-      SAILRes = calculateSail(3, req.body.grc <= 2 ? 0 : req.body.grc);
+      SAILRes = calculateSail(3, req.body.grc <= 2 ? 1 : req.body.grc);
       break;
     default:
       break;
