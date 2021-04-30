@@ -164,24 +164,22 @@ app.get("/getuserprofile", async (req, res) => {
 });
 
 //GRC Route (POST)
-let GRCArray = [];
-let ARCArray = [];
 app.post("/ARCGRC", function (req, res) {
   console.log(req.body);
 
   let SAILRes = 0;
   switch (req.body.arc) {
     case 'ARC-a':
-      SAILRes = calculateSail(0, req.body.grc <= 2 ? 1 : req.body.grc);
+      SAILRes = calculateSail(3, req.body.grc <= 2 ? 1 : req.body.grc);
       break;
     case 'ARC-b':
-      SAILRes = calculateSail(1, req.body.grc <= 2 ? 1 : req.body.grc);
-      break;
-    case 'ARC-c':
       SAILRes = calculateSail(2, req.body.grc <= 2 ? 1 : req.body.grc);
       break;
+    case 'ARC-c':
+      SAILRes = calculateSail(1, req.body.grc <= 2 ? 1 : req.body.grc);
+      break;
     case 'ARC-d':
-      SAILRes = calculateSail(3, req.body.grc <= 2 ? 1 : req.body.grc);
+      SAILRes = calculateSail(0, req.body.grc <= 2 ? 1 : req.body.grc);
       break;
     default:
       break;
@@ -194,8 +192,6 @@ app.post("/ARCGRC", function (req, res) {
     GRC: req.body.grc,
     user: req.body.user
   }
-
-  GRCArray.push();
   console.log(SAILRes);
 
   mssql_req = new mssql.Request();
@@ -219,7 +215,7 @@ function calculateSail(ARC, GRC) {
     [2, 2, 3, 4, 5, 6],
     [1, 2, 3, 4, 5, 6],
   ];
-  return SAILMatrix[ARC][GRC-1];
+  return SAILMatrix[ARC][GRC-2];
 }
 
 
