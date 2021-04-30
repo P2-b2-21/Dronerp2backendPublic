@@ -180,10 +180,14 @@ app.post("/ARCGRC", function (req, res) {
   mssql_req = new mssql.Request();
   mssql_req.query(`INSERT INTO dbo.ansoegninger (SAIL, ARC, GRC, username) OUTPUT Inserted.UID VALUES(${newObj.SAIL}, '${newObj.ARC}', ${newObj.GRC}, '${newObj.user}')`)
   .then(recordset => {
-    console.log(recordset);
-  }).catch(err => console.log(err));
+    console.log(recordset.recordset[0]);
+    res.status(200).send(JSON.stringify(recordset.recordset[0]));
+  }).catch(err => {
+    console.log(err)
+    res.status(502).send("Error" + err);
+  });
 
-  res.status(200).send("GRC tilføjet!");
+  
 });
 
 function calculateSail(ARC, GRC) {
@@ -196,3 +200,19 @@ function calculateSail(ARC, GRC) {
   ];
   return SAILMatrix[ARC][GRC-1];
 }
+
+
+app.get("/sail", function(req, res) {
+  let uid = req.query.uid;
+  console.log("UID: " + uid);
+
+  let request = new mssql.Request();
+
+
+  request.query(`SELECT * from dbo.ansoegninger WHERE UID = '${uid}'`)
+  .then(response => {
+    console.log(response.recordset[0])
+    res.status(200).send(JSON.stringify(response.recordset[0]))
+  })
+  .catch(err => {res.status(502).send(err)})
+})
