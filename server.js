@@ -205,7 +205,7 @@ app.post("/ARCGRC", function (req, res) {
     res.status(200).send(JSON.stringify(recordset.recordset[0]));
   }).catch(err => {
     console.log(err)
-    res.status(502).send("Error" + err);
+    res.status(500).send("Error" + err);
   });
 
   
@@ -235,5 +235,5 @@ app.get("/sail", function(req, res) {
     console.log(response.recordset[0])
     res.status(200).send(JSON.stringify(response.recordset[0]))
   })
-  .catch(err => {res.status(502).send(err)})
+  .catch(err => {res.status(500).send(err)})
 })
