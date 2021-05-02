@@ -4,6 +4,7 @@ const path = require("path");
 const bcrypt = require("bcryptjs");
 const cors = require("cors");
 const mssql = require("mssql");
+const { resolveSoa } = require("dns");
 //const cookieParser = require('cookie-parser'); /*     Til cookies */
 
 const app = express();
@@ -30,7 +31,7 @@ app.use(function (req, res, next) {
   } 
   next(); 
 });
-*/ 
+*/
 
 //MSMSSQL config
 const dbConfig = {
@@ -165,71 +166,95 @@ app.get("/getuserprofile", async (req, res) => {
 
 //GRC Route (POST)
 app.post("/ARCGRC", function (req, res) {
-  console.log(req.body);
+  console.log(`POST:/ARCGRC: <grc:${req.body.grc}, arc:${req.body.arc}>`);
+
+  // req.body.grc = Number.parseInt(req.body.grc);
 
   let SAILRes = 0;
   switch (req.body.arc) {
-    case 'ARC-a':
+    case "ARC-a":
       SAILRes = calculateSail(3, req.body.grc <= 2 ? 1 : req.body.grc);
       break;
-    case 'ARC-b':
+    case "ARC-b":
       SAILRes = calculateSail(2, req.body.grc <= 2 ? 1 : req.body.grc);
       break;
-    case 'ARC-c':
+    case "ARC-c":
       SAILRes = calculateSail(1, req.body.grc <= 2 ? 1 : req.body.grc);
       break;
-    case 'ARC-d':
+    case "ARC-d":
       SAILRes = calculateSail(0, req.body.grc <= 2 ? 1 : req.body.grc);
       break;
     default:
       break;
   }
 
-  let newObj =
-  {
+  let newObj = {
     SAIL: SAILRes,
     ARC: req.body.arc,
     GRC: req.body.grc,
-    user: req.body.user
-  }
-  console.log(SAILRes);
+    user: req.body.user,
+  };
+  console.log(`new SAILRes: <${SAILRes}>`);
 
   mssql_req = new mssql.Request();
-  mssql_req.query(`INSERT INTO dbo.ansoegninger (SAIL, ARC, GRC, username) OUTPUT Inserted.UID VALUES(${newObj.SAIL}, '${newObj.ARC}', ${newObj.GRC}, '${newObj.user}')`)
-  .then(recordset => {
-    console.log(recordset.recordset[0]);
-    res.status(200).send(JSON.stringify(recordset.recordset[0]));
-  }).catch(err => {
-    console.log(err)
-    res.status(500).send("Error" + err);
-  });
-
-  
+  mssql_req
+    .query(
+      `INSERT INTO dbo.ansoegninger (SAIL, ARC, GRC, username) OUTPUT Inserted.UID VALUES(${newObj.SAIL}, '${newObj.ARC}', ${newObj.GRC}, '${newObj.user}')`
+    )
+    .then((recordset) => {
+      console.log(recordset.recordset[0]);
+      res.status(200).send(JSON.stringify(recordset.recordset[0]));
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).send("Error" + err);
+    });
 });
 
 function calculateSail(ARC, GRC) {
-  let SAILMatrix =
-  [
+  let SAILMatrix = [
     [6, 6, 6, 6, 6, 6],
     [4, 4, 4, 4, 5, 6],
     [2, 2, 3, 4, 5, 6],
     [1, 2, 3, 4, 5, 6],
   ];
-  return SAILMatrix[ARC][GRC-2];
+  return SAILMatrix[ARC][GRC - 1];
 }
 
+app.get("/prevForms", (req, res) => {
+  const username = req.query.user;
+  console.log(`Requesting previous forms by user: <${username}>`);
 
-app.get("/sail", function(req, res) {
+  const request = new mssql.Request();
+
+  request
+    .query(
+      `
+    SELECT uid
+    FROM dbo.ansoegninger
+    WHERE username = '${username}'
+  `
+    )
+    .then((sqlres) => {
+      console.log(`Previous forms from user: <${username}>`);
+      console.table(sqlres.recordset);
+      res.status(200).send(JSON.stringify(sqlres.recordset));
+    });
+});
+
+app.get("/sail", function (req, res) {
   let uid = req.query.uid;
   console.log("UID: " + uid);
 
   let request = new mssql.Request();
 
-
-  request.query(`SELECT * from dbo.ansoegninger WHERE UID = '${uid}'`)
-  .then(response => {
-    console.log(response.recordset[0])
-    res.status(200).send(JSON.stringify(response.recordset[0]))
-  })
-  .catch(err => {res.status(500).send(err)})
-})
+  request
+    .query(`SELECT SAIL from dbo.ansoegninger WHERE uid = '${uid}'`)
+    .then((response) => {
+      console.log(response.recordset[0]);
+      res.status(200).send(JSON.stringify(response.recordset[0]));
+    })
+    .catch((err) => {
+      res.status(500).send(err);
+    });
+});
