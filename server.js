@@ -5,35 +5,17 @@ const bcrypt = require("bcryptjs");
 const cors = require("cors");
 const mssql = require("mssql");
 const { resolveSoa } = require("dns");
-//const cookieParser = require('cookie-parser'); /*     Til cookies */
+// All necessary middleware/libraries loaded for use of backend */  
 
+// Initializing express as "app" for use  
 const app = express();
 app.use(express.json());
 app.use(cors());
-//app.use(cookieParser()); // Til cookies
 
-const port = process.env.PORT || 3000;
+// "app" is listening on port 3000 
+const port = process.env.PORT || 3000; 
 
-/* TEST OM DET VIRKER - COOKIES 
-// Cookie middleware, assigner cookie ID så snart du besøger siden 
-app.use(function (req, res, next) {
-  // checker om klienten har sendt en cookie
-  var cookie = req.cookies.cookieName;
-  if (cookie === undefined) {
-    // hvis ikke, laver ny cookie her 
-    var randomNumber=Math.random().toString();
-    randomNumber=randomNumber.substring(2,randomNumber.length);
-    res.cookie('cookieName',randomNumber, { maxAge: 3360 * 60 * 60 * 1000, httpOnly: true }); // Cookies udløber om 20 uger, d. 16 September
-    console.log('cookie created successfully');
-  } else {
-    // hvis cookie er oprettet hos klient, gør intet  
-    console.log('cookie exists', cookie);
-  } 
-  next(); 
-});
-*/
-
-//MSMSSQL config
+//MSMSSQL config (remove for public git) 
 const dbConfig = {
   server: "server.malthelarsen.dk",
   port: 1433,
@@ -42,7 +24,7 @@ const dbConfig = {
   database: "nodejsdatabasa",
 };
 
-//SQL connection
+//SQL connection for database use 
 mssql
   .connect(dbConfig)
   .then((pool) => {
@@ -67,10 +49,10 @@ mssql
     return pool;
   })
   .catch(function (err) {
-    console.log("Failed to open a connection to the database." + err);
+    console.log("Failed to open a connection to the database." + err); // If connection is unsuccesfull, print error 
   });
 
-//Register route (POST)
+//Register route (POST) - First encrypts password, then INSERT into SQL database, then console.log user + pass if correct
 app.post("/register", async (req, res) => {
   try {
     const salt = await bcrypt.genSalt();
@@ -105,7 +87,7 @@ app.post("/register", async (req, res) => {
   }
 });
 
-//Login route (POST)
+//Login route (POST) - Tries to look up username + password from SQL database, if found "status 201 login ok" otherwise "status 500 login denied" 
 app.post("/login", async (req, res) => {
   console.log("Login request began");
 
@@ -145,7 +127,7 @@ app.post("/login", async (req, res) => {
     .catch((e) => console.log(e));
 });
 
-//Getuserprofile route (GET)
+//Getuserprofile route (GET) - Loads user profile information if SELECT * matches username. 
 app.get("/getuserprofile", async (req, res) => {
   let user = req.query.user;
   console.log("Get user profile requested for user: " + user);
@@ -164,11 +146,9 @@ app.get("/getuserprofile", async (req, res) => {
     });
 });
 
-//GRC Route (POST)
+//GRC Route (POST) - Switch case to find correct SAIL from ARC+GRC scores + insert values into SQL database
 app.post("/ARCGRC", function (req, res) {
   console.log(`POST:/ARCGRC: <grc:${req.body.grc}, arc:${req.body.arc}>`);
-
-  // req.body.grc = Number.parseInt(req.body.grc);
 
   let SAILRes = 0;
   switch (req.body.arc) {
@@ -221,6 +201,7 @@ function calculateSail(ARC, GRC) {
   return SAILMatrix[ARC][GRC - 1];
 }
 
+//prevForms route (GET) - For loading previous filled applications from users. 
 app.get("/prevForms", (req, res) => {
   const username = req.query.user;
   console.log(`Requesting previous forms by user: <${username}>`);
@@ -242,6 +223,7 @@ app.get("/prevForms", (req, res) => {
     });
 });
 
+//SAIL Route (GET) 
 app.get("/sail", function (req, res) {
   let uid = req.query.uid;
   console.log("UID: " + uid);
