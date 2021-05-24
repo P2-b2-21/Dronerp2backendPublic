@@ -14,9 +14,9 @@ const mssql = require("mssql");
 
 const dbConfig = {
   server: "server.malthelarsen.dk",
-  port: 1433,
-  user: "sw2",
-  password: "b221",
+  port: port,
+  user: user,
+  password: password,
   database: "nodejsdatabasa",
 };
 
