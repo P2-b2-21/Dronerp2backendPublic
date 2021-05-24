@@ -15,12 +15,12 @@ app.use(cors());
 // "app" is listening on port 3000 
 const port = process.env.PORT || 3000; 
 
-//MSMSSQL config (remove for public git) 
+//MSMSSQL config (removed for public git)
 const dbConfig = {
   server: "server.malthelarsen.dk",
-  port: 1433,
-  user: "sw2",
-  password: "b221",
+  port: port,
+  user: user,
+  password: password,
   database: "nodejsdatabasa",
 };
 
